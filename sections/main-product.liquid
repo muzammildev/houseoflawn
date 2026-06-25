@@ -11,6 +11,10 @@ t4option0_0 | alt text
        assign remove_soldout = false  
     endif 
     assign se_stts          = section.settings
+    assign showSoldoutAlts  = false
+    if isProductAvailable == false and se_stts.soldout_alts_enable
+      assign showSoldoutAlts = true
+    endif
     assign sid            = section.id
     assign pr_sid         = product.id | append: sid
     assign media_layout     = se_stts.media_layout
@@ -261,7 +265,7 @@ t4option0_0 | alt text
     {{ 'pre_flickityt4s.min.css' | asset_url | stylesheet_tag }}
     {{ 'main-product.css' | asset_url | stylesheet_tag }}
     
-    {%- if isProductAvailable == false -%}
+    {%- if showSoldoutAlts -%}
       {%- style -%}
         @media (min-width: 768px){
           .t4s-main-product__content.is--pr-soldout .t4s-product__media-wrapper{
@@ -277,7 +281,7 @@ t4option0_0 | alt text
         .t4s-pr__soldout-alts-title{ margin-bottom: 20px; }
       {%- endstyle -%}
     {%- endif -%}
-    <div class="t4s-container t4s-main-product__content is--layout_{{ se_stts.pr_layout }} t4s-product-media__{{ media_layout }} t4s-product-thumb-size__{{ se_stts.thumb_lr_size }}{% if isProductAvailable == false %} is--pr-soldout{% endif %}">
+    <div class="t4s-container t4s-main-product__content is--layout_{{ se_stts.pr_layout }} t4s-product-media__{{ media_layout }} t4s-product-thumb-size__{{ se_stts.thumb_lr_size }}{% if showSoldoutAlts %} is--pr-soldout{% endif %}">
       <div class="t4s-row">
         <div class="t4s-col-item t4s-col-12 t4s-main-area">
           <div data-product-featured='{"id": "{{ product.id }}","isMainProduct": true, "sectionId": "{{ sid }}", "disableSwatch": {{ isProductDefault }}, "media": {% if media_size > 1 %}true{% else %}false{% endif %},"enableHistoryState": {{ enableHistoryState }}, "formID": "#product-form-{{ pr_sid }}", "removeSoldout": {{ remove_soldout }}, "changeVariantByImg": {{ settings.use_change_variant_by_img }}, "isNoPick": {{ PR_no_pick }},"hasSoldoutUnavailable": {{ ck_so_un }},"enable_zoom_click_mb": {{ se_stts.enable_zoom_click_mb }},"main_click": "{{ main_click }}","canMediaGroup": {{ canMedia_group }},"isGrouped": {{ isGrouped }},"hasIsotope": {{ hasIsotope }},"available": {{ product.available }}, "customBadge": {{ arr_badge | json }}, "customBadgeHandle": {{ arr_badge_handle | json }},"dateStart": {{ product.created_at | date: "%s" }}, "compare_at_price": {{ current_variant.compare_at_price | json }},"price": {{ current_variant.price | json }}, "isPreoder": {{ isPreoder }}, "showFirstMedia": {{ settings.show_first_media }}, "isSticky": {{ isSticky }}, "isStickyMB": {{ isStickyMB }}, "stickyShow": "{{ se_stts.sticky_show }}", "useStickySelect": {{se_stts.enable_select}} }' class="t4s-row t4s-row__product is-zoom-type__{{ se_stts.zoom_tp }}" data-t4s-zoom-main{% if main_click == 'zoom' %} data-zoom-options='{"type": "{{ se_stts.zoom_tp }}", "magnify": 2, "touch": false, "pr_type": "1","isZoomPR": true}'{% endif %}>
@@ -508,7 +512,7 @@ t4option0_0 | alt text
                                 <a class="t4s-ch" data-no-instant rel="nofollow" href="{{ product.url }}" data-class="t4s-mfp-btn-close-inline" data-id="t4s-pr-popup__contact" data-storageid="contact_product{{ product.id }}" data-open-mfp-ajax data-style="max-width:563px" data-mfp-src="{{ product.url }}/?section_id=ajax_popup" data-phone='{{ bk_stts.phone }}'>{{ 'products.product.ask_question' | t }}</a>
                                 {%- endif -%}
                             </div>
-                    {%- when 'meta' %}{% if isProductAvailable == false %}{% continue %}{% endif -%}
+                    {%- when 'meta' %}{% if showSoldoutAlts %}{% continue %}{% endif -%}
                         {%- assign ck_meta = false -%}
                         {%- capture meta -%}
                             {%- if bk_stts.show_options and product.has_only_default_variant == false -%}{%- assign ck_meta = true -%}
@@ -587,7 +591,7 @@ t4option0_0 | alt text
                         {%- endcapture -%}
                     {%- if ck_meta -%}<div class="t4s-product__meta{% if bk_stts.pr_meta_horizontal %} t4s-product__meta-horizontal{% endif %}" {{ block.shopify_attributes }}>{{- meta -}}</div>{%- endif -%}
         
-                    {%- when 'socials' %}{% if isProductAvailable == false %}{% continue %}{% endif -%}
+                    {%- when 'socials' %}{% if showSoldoutAlts %}{% continue %}{% endif -%}
                         <div class="t4s-product__social-share t4s-text-{{ bk_stts.socials_align }} t4s-d-inline-flex t4s-align-items-center" {{ block.shopify_attributes }}>
                             <span class="t4s-product__social-title">{{ bk_stts.title }}:</span>
                             {%- liquid 
@@ -783,8 +787,8 @@ t4option0_0 | alt text
                     {%- when 'tab_des' or 'tab_add' or 'tab_buy' or 'tab_rivui' or 'tab_liquid' or 'tab_html' -%}
                         {%- if tabCheck or tabs_position == 'external' %}{% continue %}{% endif -%}
                         {%- assign tabCheck = true -%}
-                        {%- if isProductAvailable == false -%}
-                            {%- render 'product-soldout-alternatives', product: product -%}
+                        {%- if showSoldoutAlts -%}
+                            {%- render 'product-soldout-alternatives', product: product, collection: collections[se_stts.soldout_alts_collection], heading: se_stts.soldout_alts_heading, limit: se_stts.soldout_alts_limit -%}
                         {%- else -%}
                             {%- render 'product_tabs', product: product, se_stts: se_stts, tabs_design: 'accordion', seBlocks: seBlocks, idTabDes: idTabDes, idTabReview: idTabReview, isProductDefault: isProductDefault -%}
                         {%- endif -%}
@@ -842,7 +846,7 @@ t4option0_0 | alt text
     </div>
     {%- render 'FBT' -%}
     
-    {%- if tabs_position == 'external' %}{% if isProductAvailable == false %}{% render 'product-soldout-alternatives', product: product %}{% else %}{% render 'product_tabs', product: product, se_stts: se_stts, tabs_design: se_stts.tabs_design, seBlocks: seBlocks, idTabDes: idTabDes, idTabReview: idTabReview, isProductDefault: isProductDefault %}{% endif %}{% endif -%}
+    {%- if tabs_position == 'external' %}{% if showSoldoutAlts %}{% render 'product-soldout-alternatives', product: product, collection: collections[se_stts.soldout_alts_collection], heading: se_stts.soldout_alts_heading, limit: se_stts.soldout_alts_limit %}{% else %}{% render 'product_tabs', product: product, se_stts: se_stts, tabs_design: se_stts.tabs_design, seBlocks: seBlocks, idTabDes: idTabDes, idTabReview: idTabReview, isProductDefault: isProductDefault %}{% endif %}{% endif -%}
     
     <template data-icons-thumb>
       <svg class="t4s-d-none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -1079,6 +1083,41 @@ t4option0_0 | alt text
       "id": "enable_sticky_info",
       "label": "Enable sticky product information on large screens",
       "default": false
+    },
+    {
+      "type": "header",
+      "content": "+ Out of stock alternatives"
+    },
+    {
+      "type": "paragraph",
+      "content": "When a product is sold out, replace the Description / Meta / Share area with a grid of in-stock products."
+    },
+    {
+      "type": "checkbox",
+      "id": "soldout_alts_enable",
+      "label": "Enable out of stock alternatives",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "soldout_alts_heading",
+      "label": "Heading",
+      "default": "Out of stock — explore in-stock styles from the same collection"
+    },
+    {
+      "type": "collection",
+      "id": "soldout_alts_collection",
+      "label": "Collection",
+      "info": "Products are pulled from this collection. If left empty, falls back to the collections the product belongs to."
+    },
+    {
+      "type": "range",
+      "id": "soldout_alts_limit",
+      "min": 2,
+      "max": 24,
+      "step": 1,
+      "label": "Maximum products to show",
+      "default": 12
     },
     {
       "type": "header",
