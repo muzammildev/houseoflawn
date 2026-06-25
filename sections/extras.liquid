@@ -50,22 +50,19 @@ assign sid       = section.id
 		  <script>
         (function() {
 		  	{%- if bk_stts.disable_text_copy %}
-		    // disable_right_click
-		    document.addEventListener("contextmenu", function(event) {
-		      event.preventDefault();
-		      // console.log(event.target)
-		      // var notInput = (event.target || event.srcElement).tagName.toLowerCase() !== "input" && (event.target || event.srcElement).tagName.toLowerCase() !== "textarea";if (notInput && (event.target || event.srcElement).innerText) {event.preventDefault();} 
-		    });
+		    // disable_right_click (disabled: right-click re-enabled site-wide)
+		    // document.addEventListener("contextmenu", function(event) {
+		    //   event.preventDefault();
+		    // });
 		    {% endif -%}
 		    {%- if bk_stts.disable_img_copy %}
-		    // disable_right_click_img
-		    document.addEventListener("mousedown", function(event) { if ((event.target || event.srcElement).tagName.toLowerCase() === "img") {
-		        // Middle-click to open in new tab
-		        if (event.which == 2) { event.preventDefault(); } 
-		    } });
-		    document.addEventListener("contextmenu", function(event) { if ((event.target || event.srcElement).tagName.toLowerCase() === "img") { event.preventDefault(); } });
-		    // disable_right_click_bg_img
-		    document.addEventListener("contextmenu", function(event) { if ((event.target || event.srcElement).style.backgroundImage) { event.preventDefault(); } });
+		    // disable_right_click_img (disabled: right-click re-enabled on images)
+		    // document.addEventListener("mousedown", function(event) { if ((event.target || event.srcElement).tagName.toLowerCase() === "img") {
+		    //     if (event.which == 2) { event.preventDefault(); }
+		    // } });
+		    // document.addEventListener("contextmenu", function(event) { if ((event.target || event.srcElement).tagName.toLowerCase() === "img") { event.preventDefault(); } });
+		    // disable_right_click_bg_img (disabled)
+		    // document.addEventListener("contextmenu", function(event) { if ((event.target || event.srcElement).style.backgroundImage) { event.preventDefault(); } });
 		    {% endif -%}
 		    {%- if bk_stts.disable_img_drag -%}
 		    // Drag and drop <img> elements
