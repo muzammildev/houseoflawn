@@ -265,8 +265,12 @@ t4option0_0 | alt text
       {%- style -%}
         @media (min-width: 768px){
           .t4s-main-product__content.is--pr-soldout .t4s-product__media-wrapper{
-            max-width: 45%;
-            margin-right: auto;
+            flex: 0 0 33%;
+            max-width: 33%;
+          }
+          .t4s-main-product__content.is--pr-soldout .t4s-product__info-wrapper{
+            flex: 0 0 67%;
+            max-width: 67%;
           }
         }
         .t4s-pr__soldout-alts{ margin-top: 20px; }
