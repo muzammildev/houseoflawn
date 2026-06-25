@@ -1,0 +1,80 @@
+{%- comment -%}
+  Renders a grid of in-stock products gathered across every collection the
+  current (sold-out) product belongs to. Deduped by id and excluding the
+  current product. Used by sections/main-product.liquid when product is
+  out of stock, in place of the Description / Meta / Share zone.
+
+  Accepts:
+    - product: the current (sold-out) product
+    - heading: optional heading text
+    - limit: optional max number of alternatives (default 12)
+{%- endcomment -%}
+
+{%- liquid
+  assign soldout_limit = limit | default: 12
+  assign soldout_heading = heading | default: "Out of stock — explore in-stock styles from the same collection"
+
+  assign image_ratio = 'ratioadapt'
+  assign imgatt = ''
+
+  assign show_img = settings.show_img
+  assign isGrowaveWishlist = false
+  if settings.wishlist_mode == "3" and shop.customer_accounts_enabled
+    assign isGrowaveWishlist = true
+  endif
+  assign placeholder_img = settings.placeholder_img
+
+  assign show_vendor = settings.show_vendor
+  assign use_link_vendor = settings.use_link_vendor
+
+  assign enable_rating = settings.enable_rating
+  assign rating_pos = '1'
+  assign list_color_pos = '1'
+  assign list_size_pos = '1'
+
+  assign enable_pr_size = settings.enable_pr_size
+  assign pr_size_pos = settings.pr_size_pos
+  assign show_size_type = settings.show_size_type
+  assign size_ck = settings.size_ck | append: ',size,sizes,Größe'
+  assign get_size = size_ck | downcase | replace: ' ,', ',' | replace: ', ', ',' | split: ',' | uniq
+
+  assign enable_pr_color = settings.enable_pr_color
+  assign show_cl_type = settings.show_color_type
+  assign color_ck = settings.color_ck | append: ',color,colors,couleur,colour'
+  assign get_color = color_ck | downcase | replace: ' ,', ',' | replace: ', ', ',' | split: ',' | uniq
+
+  assign price_varies_style = settings.price_varies_style
+  assign app_review = settings.app_review
+  assign use_countdown = false
+
+  assign seen_ids = ''
+  assign alt_count = 0
+-%}
+
+{%- capture soldout_alts_html -%}
+  {%- for col in product.collections -%}
+    {%- if alt_count >= soldout_limit -%}{% break %}{%- endif -%}
+    {%- for p in col.products -%}
+      {%- if alt_count >= soldout_limit -%}{% break %}{%- endif -%}
+      {%- unless p.available -%}{% continue %}{%- endunless -%}
+      {%- if p.id == product.id -%}{% continue %}{%- endif -%}
+      {%- assign idkey = '|' | append: p.id | append: '|' -%}
+      {%- if seen_ids contains idkey -%}{% continue %}{%- endif -%}
+      {%- assign seen_ids = seen_ids | append: idkey -%}
+      {%- assign alt_count = alt_count | plus: 1 -%}
+      {%- render 'pr-grid-item1', product: p, isGrowaveWishlist: isGrowaveWishlist, show_img: show_img, show_vendor: show_vendor, use_link_vendor: use_link_vendor, rating_pos: rating_pos, list_color_pos: list_color_pos, list_size_pos: list_size_pos, enable_pr_color: enable_pr_color, show_cl_type: show_cl_type, get_color: get_color, enable_pr_size: enable_pr_size, pr_size_pos: pr_size_pos, get_size: get_size, show_size_type: show_size_type, price_varies_style: price_varies_style, app_review: app_review, enable_rating: enable_rating, use_countdown: use_countdown, imgatt: imgatt, show_list_btns: false, placeholder_img: placeholder_img -%}
+    {%- endfor -%}
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- if alt_count > 0 -%}
+  {{ 'collection-products.css' | asset_url | stylesheet_tag }}
+  <div class="t4s-pr__soldout-alts">
+    {%- if soldout_heading != blank -%}
+      <h3 class="t4s-pr__soldout-alts-title">{{ soldout_heading }}</h3>
+    {%- endif -%}
+    <div class="t4s_box_pr_grid t4s-products t4s_{{ image_ratio }} t4s_position_8 t4s_cover t4s-row t4s-row-cols-lg-4 t4s-row-cols-md-3 t4s-row-cols-2 t4s-gx-lg-15 t4s-gy-lg-30 t4s-gx-md-15 t4s-gy-md-15 t4s-gx-10 t4s-gy-15">
+      {{- soldout_alts_html -}}
+    </div>
+  </div>
+{%- endif -%}
