@@ -194,8 +194,8 @@
                         </button>
                     {%- endif -%}
                 </div>
-                {%- if bk_stts.show_whatsapp and isProductAvailable and current_variant_available -%}
-                {%- assign whatsapp_phone = bk_stts.whatsapp_phone | default: '923274745655' -%}
+                {%- if bk_stts.show_whatsapp and bk_stts.whatsapp_phone != blank and isProductAvailable and current_variant_available -%}
+                {%- assign whatsapp_phone = bk_stts.whatsapp_phone | strip | remove: ' ' | remove: '+' | remove: '-' -%}
                 {%- assign whatsapp_text = bk_stts.whatsapp_text | default: 'ORDER ON WHATSAPP' -%}
                 <div class="shopify-payment-button"> 
                   <a target="_blank" href="https://api.whatsapp.com/send/?phone={{ whatsapp_phone }}&text=I want to order this product (https://www.houseoflawn.com{{ product.url}})" style="background: #6DCF72;" class="t4s-product-form__submit t4s-btn t4s-btn-base t4s-btn-style-default t4s-btn-color-dark t4s-w-100 t4s-justify-content-center  t4s-btn-effect-fade t4s-btn-loading__svg">{{ whatsapp_text }}</a> 
